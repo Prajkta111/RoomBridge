@@ -28,3 +28,8 @@ dist-ssr
 .firebase/
 firebase-data/
 .firebaserc.local
+
+# Environment variables
+.env
+.env.local
+.env.production

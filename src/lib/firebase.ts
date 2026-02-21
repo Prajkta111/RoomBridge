@@ -5,15 +5,15 @@ import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
 import { getAnalytics } from 'firebase/analytics';
 
-// Firebase configuration
+// Firebase configuration — values loaded from .env (VITE_ prefix required by Vite)
 const firebaseConfig = {
-  apiKey: "AIzaSyAfq4iJMXzEn3IfnOGhpIo9IFD9D0cpKJ8",
-  authDomain: "roombridge-e6a36.firebaseapp.com",
-  projectId: "roombridge-e6a36",
-  storageBucket: "roombridge-e6a36.firebasestorage.app",
-  messagingSenderId: "387169383202",
-  appId: "1:387169383202:web:79c02d5673a5042bfd2b7b",
-  measurementId: "G-KM0JB8LDVT"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase

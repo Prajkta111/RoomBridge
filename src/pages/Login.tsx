@@ -10,7 +10,7 @@ const Login = () => {
   const handleDemoLogin = (role: 'user' | 'admin') => {
     // In a real app, you would set authentication state here
     if (role === 'admin') {
-      navigate('/admin/dashboard');
+      navigate('/admin');
     } else {
       navigate('/dashboard');
     }

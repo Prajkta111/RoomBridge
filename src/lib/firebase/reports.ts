@@ -47,15 +47,7 @@ export async function submitReport(
   
   await setDoc(reportRef, newReport);
   
-  // Add to reported user's moderation history
-  const historyRef = doc(collection(db, 'users', reportedUserId, 'moderation_history'));
-  await setDoc(historyRef, {
-    report_id: reportId,
-    reporter_id: reporterId,
-    report_type: reportType,
-    status: 'pending',
-    created_at: Timestamp.now(),
-  });
+  // Note: moderation_history is written by admin/cloud functions only
   
   return newReport;
 }

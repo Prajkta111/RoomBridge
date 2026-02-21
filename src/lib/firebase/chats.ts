@@ -153,10 +153,12 @@ export async function sendMessage(
   // Add message to subcollection
   await setDoc(messageRef, newMessage);
   
-  // Update chat session's last_message_at
+  // Update chat session's last_message_at + preview info for notifications
   const chatRef = doc(db, 'chats', chatId);
   await updateDoc(chatRef, {
     last_message_at: serverTimestamp(),
+    last_message_sender_id: senderId,
+    last_message_preview: text.length > 60 ? text.slice(0, 60) + '…' : text,
   });
   
   return newMessage;

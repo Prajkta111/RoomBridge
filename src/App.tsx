@@ -15,12 +15,15 @@ import AdminSetup from "./pages/AdminSetup";
 import Dashboard from "./pages/Dashboard";
 import BrowseListings from "./pages/user/BrowseListings";
 import RoomRequests from "./pages/user/RoomRequests";
+import MyListings from "./pages/user/MyListings";
+import MyRequests from "./pages/user/MyRequests";
 import PostListing from "./pages/user/PostListing";
 import PostRoomRequest from "./pages/user/PostRoomRequest";
 import Messages from "./pages/user/Messages";
 import MyRatings from "./pages/user/MyRatings";
 import ProfileVerification from "./pages/user/ProfileVerification";
-import UserSettings from "./pages/user/UserSettings";
+import ReportUser from "./pages/user/ReportUser";
+import HelpSupport from "./pages/user/HelpSupport";
 
 // Admin Dashboard
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -32,6 +35,7 @@ import AdminReportedChats from "./pages/admin/AdminReportedChats";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminReports from "./pages/admin/AdminReports";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminProfile from "./pages/admin/AdminProfile";
 
 const queryClient = new QueryClient();
 
@@ -52,12 +56,15 @@ const App = () => (
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/dashboard/browse" element={<ProtectedRoute><BrowseListings /></ProtectedRoute>} />
           <Route path="/dashboard/requests" element={<ProtectedRoute><RoomRequests /></ProtectedRoute>} />
+          <Route path="/dashboard/my-listings" element={<ProtectedRoute><MyListings /></ProtectedRoute>} />
+          <Route path="/dashboard/my-requests" element={<ProtectedRoute><MyRequests /></ProtectedRoute>} />
           <Route path="/dashboard/post" element={<ProtectedRoute><PostListing /></ProtectedRoute>} />
           <Route path="/dashboard/post-request" element={<ProtectedRoute><PostRoomRequest /></ProtectedRoute>} />
           <Route path="/dashboard/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
           <Route path="/dashboard/ratings" element={<ProtectedRoute><MyRatings /></ProtectedRoute>} />
           <Route path="/dashboard/profile" element={<ProtectedRoute><ProfileVerification /></ProtectedRoute>} />
-          <Route path="/dashboard/settings" element={<ProtectedRoute><UserSettings /></ProtectedRoute>} />
+          <Route path="/dashboard/report" element={<ProtectedRoute><ReportUser /></ProtectedRoute>} />
+          <Route path="/dashboard/help" element={<ProtectedRoute><HelpSupport /></ProtectedRoute>} />
 
           {/* Admin Dashboard */}
           <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminDashboard /></ProtectedRoute>} />
@@ -69,6 +76,7 @@ const App = () => (
           <Route path="/admin/reviews" element={<ProtectedRoute requireAdmin><AdminReviews /></ProtectedRoute>} />
           <Route path="/admin/reports" element={<ProtectedRoute requireAdmin><AdminReports /></ProtectedRoute>} />
           <Route path="/admin/settings" element={<ProtectedRoute requireAdmin><AdminSettings /></ProtectedRoute>} />
+          <Route path="/admin/profile" element={<ProtectedRoute requireAdmin><AdminProfile /></ProtectedRoute>} />
 
           <Route path="*" element={<NotFound />} />
         </Routes>

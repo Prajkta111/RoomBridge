@@ -82,6 +82,7 @@ export interface ListingDocument {
   title: string;
   description: string;
   listing_type: 'long_term' | 'pg' | 'flatmate' | 'short_stay' | 'emergency';
+  room_type?: string;           // '1rk' | '1bhk' | '2bhk' | '3bhk' | '4bhk' | 'studio' | 'shared' | 'single'
   
   // Pricing
   rent_amount: number;          // Constraint: Positive number
@@ -100,6 +101,7 @@ export interface ListingDocument {
   amenities: string[];          // ['wifi', 'parking', 'kitchen', ...]
   preferences: {
     gender_preference?: 'male' | 'female' | 'any';
+    furnishing?: 'furnished' | 'semi-furnished' | 'unfurnished';
     profession_preference?: string[];
     other_requirements?: string;
   };
@@ -137,9 +139,16 @@ export interface RoomRequestDocument {
   
   // Location
   city: string;
+  location?: string;
+  latitude?: number;
+  longitude?: number;
+
+  // Duration (short-hand stored alongside needed_from/needed_until)
+  duration?: string;
   
   // Preferences
   preferences: {
+    gender_preference?: 'any' | 'male' | 'female';
     location_preference?: string;
     amenities_required?: string[];
     other_requirements?: string;
@@ -187,6 +196,10 @@ export interface ChatSessionDocument {
   // Timestamps
   created_at: Timestamp;
   last_message_at: Timestamp;
+
+  // Last message preview (written by sendMessage, used for notifications)
+  last_message_sender_id?: string;
+  last_message_preview?: string;
 }
 
 /**

@@ -1,49 +1,58 @@
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   ShieldCheck, LayoutDashboard, Users, Home, FileText,
-  CheckSquare, MessageCircle, Star, Flag, Settings, LogOut, Menu, Bell
+  Star, Flag, UserCircle, LogOut, Menu, Bell
 } from "lucide-react";
-import { useState } from "react";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import { signOut } from "@/lib/firebase/auth";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const adminMenuItems = [
   { icon: LayoutDashboard, label: "Dashboard Overview", to: "/admin" },
   { icon: Users, label: "Users", to: "/admin/users" },
   { icon: Home, label: "Listings", to: "/admin/listings" },
   { icon: FileText, label: "Room Requests", to: "/admin/requests" },
-  { icon: CheckSquare, label: "Verification Docs", to: "/admin/verifications" },
-  { icon: MessageCircle, label: "Reported Chats", to: "/admin/reported-chats" },
   { icon: Star, label: "Reviews", to: "/admin/reviews" },
   { icon: Flag, label: "Reports & Flags", to: "/admin/reports" },
-  { icon: Settings, label: "Settings", to: "/admin/settings" },
+  { icon: UserCircle, label: "Profile", to: "/admin/profile" },
 ];
 
 const AdminDashboardLayout = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { userData } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [pendingReports, setPendingReports] = useState(0);
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const [showAvatarDropdown, setShowAvatarDropdown] = useState(false);
+
+  // Real-time pending reports count
+  useEffect(() => {
+    const q = query(collection(db, "reports"), where("status", "==", "pending"));
+    const unsub = onSnapshot(q, (snap) => {
+      setPendingReports(snap.size);
+    });
+    return () => unsub();
+  }, []);
 
   const pageTitle = adminMenuItems.find((item) => item.to === location.pathname)?.label || "Admin";
 
   const handleLogout = async () => {
     try {
       await signOut();
-      toast({
-        title: "Logged out",
-        description: "You have been logged out successfully.",
-      });
-      navigate('/');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to log out. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Logged out", description: "You have been logged out successfully." });
+      navigate("/");
+    } catch {
+      toast({ title: "Error", description: "Failed to log out. Please try again.", variant: "destructive" });
     }
   };
+
+  const adminInitial = userData?.name?.charAt(0)?.toUpperCase() || "A";
+  const adminPhoto = (userData as any)?.selfie_url || null;
 
   return (
     <div className="min-h-screen flex bg-muted/30">
@@ -52,7 +61,7 @@ const AdminDashboardLayout = ({ children }: { children: ReactNode }) => {
         <div className="fixed inset-0 bg-foreground/40 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Admin Sidebar — darker violet */}
+      {/* Sidebar */}
       <aside
         className={`fixed lg:static inset-y-0 left-0 z-50 w-64 flex flex-col transform transition-transform duration-200 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
@@ -90,15 +99,17 @@ const AdminDashboardLayout = ({ children }: { children: ReactNode }) => {
                 )}
                 <item.icon className="w-4 h-4 flex-shrink-0" />
                 <span className="truncate">{item.label}</span>
-                {item.label === "Reports & Flags" && (
-                  <span className="ml-auto w-5 h-5 rounded-full bg-secondary text-primary-foreground text-[10px] font-bold flex items-center justify-center">3</span>
+                {item.label === "Reports & Flags" && pendingReports > 0 && (
+                  <span className="ml-auto min-w-[20px] h-5 px-1.5 rounded-full bg-secondary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                    {pendingReports}
+                  </span>
                 )}
               </Link>
             );
           })}
         </nav>
 
-        {/* Bottom */}
+        {/* Bottom logout */}
         <div className="p-3 border-t border-primary-foreground/10">
           <button
             onClick={handleLogout}
@@ -120,13 +131,107 @@ const AdminDashboardLayout = ({ children }: { children: ReactNode }) => {
             </button>
             <h1 className="font-display font-bold text-lg text-foreground">{pageTitle}</h1>
           </div>
+
           <div className="flex items-center gap-3">
-            <button className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors relative">
-              <Bell className="w-4 h-4" />
-              <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-secondary border-2 border-background" />
-            </button>
-            <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-primary-foreground text-sm font-bold">
-              A
+            {/* Notification bell */}
+            <div className="relative">
+              <button
+                onClick={() => setShowNotifDropdown((p) => !p)}
+                className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors relative"
+              >
+                <Bell className="w-4 h-4" />
+                {pendingReports > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-destructive text-white text-[10px] font-bold flex items-center justify-center border-2 border-background">
+                    {pendingReports}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification dropdown */}
+              {showNotifDropdown && (
+                <div
+                  className="absolute right-0 top-12 w-72 bg-card rounded-xl border border-border shadow-2xl z-50 overflow-hidden"
+                  onMouseLeave={() => setShowNotifDropdown(false)}
+                >
+                  <div className="p-3 border-b border-border flex items-center justify-between">
+                    <span className="text-sm font-semibold text-foreground">Notifications</span>
+                    {pendingReports > 0 && (
+                      <span className="text-xs bg-destructive/10 text-destructive font-semibold px-2 py-0.5 rounded-full">
+                        {pendingReports} pending
+                      </span>
+                    )}
+                  </div>
+                  {pendingReports === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-6">No new notifications</p>
+                  ) : (
+                    <div>
+                      <div className="px-4 py-3 flex items-start gap-3 hover:bg-muted/50 transition-colors">
+                        <div className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center flex-shrink-0">
+                          <Flag className="w-4 h-4 text-destructive" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            {pendingReports} new report{pendingReports > 1 ? "s" : ""} submitted
+                          </p>
+                          <p className="text-xs text-muted-foreground">Requires your review</p>
+                        </div>
+                      </div>
+                      <div className="p-3 border-t border-border">
+                        <Link
+                          to="/admin/reports"
+                          onClick={() => setShowNotifDropdown(false)}
+                          className="text-xs text-primary font-semibold hover:underline"
+                        >
+                          View all reports →
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Admin avatar dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => { setShowAvatarDropdown((p) => !p); setShowNotifDropdown(false); }}
+                className="focus:outline-none"
+              >
+                {adminPhoto ? (
+                  <img src={adminPhoto} alt="Admin" className="w-9 h-9 rounded-full object-cover border-2 border-border hover:opacity-90 transition-opacity" />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-primary-foreground text-sm font-bold cursor-pointer hover:opacity-90 transition-opacity">
+                    {adminInitial}
+                  </div>
+                )}
+              </button>
+
+              {showAvatarDropdown && (
+                <div
+                  className="absolute right-0 top-12 w-48 bg-card rounded-xl border border-border shadow-2xl z-50 overflow-hidden"
+                  onMouseLeave={() => setShowAvatarDropdown(false)}
+                >
+                  <div className="px-4 py-3 border-b border-border">
+                    <p className="text-sm font-semibold text-foreground truncate">{userData?.name || "Admin"}</p>
+                    <p className="text-xs text-muted-foreground truncate">{userData?.email || ""}</p>
+                  </div>
+                  <Link
+                    to="/admin/profile"
+                    onClick={() => setShowAvatarDropdown(false)}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-foreground hover:bg-muted transition-colors"
+                  >
+                    <UserCircle className="w-4 h-4 text-muted-foreground" />
+                    Profile
+                  </Link>
+                  <button
+                    onClick={() => { setShowAvatarDropdown(false); handleLogout(); }}
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-destructive hover:bg-destructive/10 transition-colors w-full text-left"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Logout
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>

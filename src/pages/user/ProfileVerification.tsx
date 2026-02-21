@@ -64,10 +64,10 @@ const ProfileVerification = () => {
         phone: formData.phone,
         city: formData.city,
         home_district: formData.home_district,
-        college: formData.college || undefined,
-        course: formData.course || undefined,
-        company: formData.company || undefined,
-        role: formData.role || undefined,
+        college: formData.college || "",
+        course: formData.course || "",
+        company: formData.company || "",
+        role: formData.role || "",
       });
 
       toast({
@@ -185,47 +185,6 @@ const ProfileVerification = () => {
   return (
     <UserDashboardLayout>
       <div className="max-w-3xl mx-auto space-y-6">
-        {/* Verification Status */}
-        <div className="bg-card rounded-xl border border-border p-6 shadow-card">
-          <h2 className="font-display text-xl font-bold text-foreground mb-4">Verification Status</h2>
-          <div className="grid sm:grid-cols-2 gap-3">
-            {verificationItems
-              .filter((v) => v.show)
-              .map((v) => {
-                const status = getVerificationStatus(v.badge);
-                return (
-                  <div key={v.label} className="flex items-center gap-3 p-3 rounded-lg bg-muted">
-                    {status === "verified" ? (
-                      <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0" />
-                    ) : status === "pending" ? (
-                      <Clock className="w-5 h-5 text-secondary flex-shrink-0" />
-                    ) : (
-                      <div className="w-5 h-5 rounded-full border-2 border-muted-foreground flex-shrink-0" />
-                    )}
-                    <div>
-                      <span className="text-sm font-medium text-foreground">{v.label}</span>
-                      <span
-                        className={`block text-[10px] font-semibold ${
-                          status === "verified"
-                            ? "text-primary"
-                            : status === "pending"
-                            ? "text-secondary"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {status === "verified"
-                          ? "✔ Completed"
-                          : status === "pending"
-                          ? "⏳ Under Review"
-                          : "Not Started"}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-
         {/* Profile Form */}
         <div className="bg-card rounded-xl border border-border p-6 shadow-card space-y-5">
           <h2 className="font-display text-xl font-bold text-foreground">Profile Information</h2>

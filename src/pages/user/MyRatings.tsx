@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import UserDashboardLayout from "@/components/UserDashboardLayout";
 import { Star, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 const MyRatings = () => {
@@ -17,18 +17,17 @@ const MyRatings = () => {
       
       try {
         const ratingsRef = collection(db, "ratings");
-        const q = query(
-          ratingsRef, 
-          where("reviewee_id", "==", user.uid),
-          where("status", "==", "active"),
-          orderBy("created_at", "desc")
-        );
+        const q = query(ratingsRef, where("reviewee_id", "==", user.uid));
         const snapshot = await getDocs(q);
         
-        const ratingsData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
+        const ratingsData = snapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .filter((r: any) => r.status === "active")
+          .sort((a: any, b: any) => {
+            const aTime = a.created_at?.toMillis?.() ?? 0;
+            const bTime = b.created_at?.toMillis?.() ?? 0;
+            return bTime - aTime;
+          });
         
         setRatings(ratingsData);
         

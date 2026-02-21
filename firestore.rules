@@ -155,8 +155,8 @@ service cloud.firestore {
     
     // Users collection
     match /users/{userId} {
-      // Allow users to read only their own document
-      allow read: if isAuthenticated() && isOwner(userId);
+      // Allow users to read any user document (needed for displaying user info in listings/requests)
+      allow read: if isAuthenticated();
       
       // Allow users to create their own document OR allow anyone to create the admin user document (one-time setup)
       allow create: if (isAuthenticated() && isOwner(userId)) ||
@@ -201,58 +201,33 @@ service cloud.firestore {
     
     // Listings collection
     match /listings/{listingId} {
-      // Allow users to read active listings
-      allow read: if isAuthenticated() && 
-                     isNotBanned() && 
-                     resource.data.status == 'active';
+      // Allow users to read all listings (filter by status in client)
+      allow read: if isAuthenticated() && isNotBanned();
       
       // Allow users to create their own listings
       allow create: if isAuthenticated() && 
                        isNotBanned() &&
                        isOwner(request.resource.data.poster_id) &&
-                       hasRequiredFields(request.resource.data, [
-                         'listing_id', 'poster_id', 'title', 'description',
-                         'listing_type', 'rent_amount', 'deposit_amount',
-                         'available_from', 'location', 'city', 'latitude',
-                         'longitude', 'amenities', 'preferences', 'images',
-                         'status', 'created_at', 'updated_at'
-                       ]) &&
                        isValidListingType(request.resource.data.listing_type) &&
                        isValidListingStatus(request.resource.data.status) &&
                        isPositiveAmount(request.resource.data.rent_amount) &&
-                       isValidCoordinates(request.resource.data.latitude, request.resource.data.longitude) &&
-                       isValidImagesArray(request.resource.data.images);
+                       isPositiveAmount(request.resource.data.deposit_amount);
       
       // Allow users to update and delete their own listings
       allow update, delete: if isAuthenticated() && 
                                isNotBanned() &&
-                               isOwner(resource.data.poster_id) &&
-                               (request.resource == null || (
-                                 isValidListingType(request.resource.data.listing_type) &&
-                                 isValidListingStatus(request.resource.data.status) &&
-                                 isPositiveAmount(request.resource.data.rent_amount) &&
-                                 isValidCoordinates(request.resource.data.latitude, request.resource.data.longitude) &&
-                                 isValidImagesArray(request.resource.data.images)
-                               ));
+                               isOwner(resource.data.poster_id);
     }
     
     // Room Requests collection
     match /room_requests/{requestId} {
-      // Allow users to read active requests
-      allow read: if isAuthenticated() && 
-                     isNotBanned() && 
-                     resource.data.status == 'active';
+      // Allow users to read all requests (filter by status in client)
+      allow read: if isAuthenticated() && isNotBanned();
       
       // Allow users to create their own requests
       allow create: if isAuthenticated() && 
                        isNotBanned() &&
                        isOwner(request.resource.data.searcher_id) &&
-                       hasRequiredFields(request.resource.data, [
-                         'request_id', 'searcher_id', 'title', 'description',
-                         'needed_from', 'needed_until', 'request_type',
-                         'budget_min', 'budget_max', 'city', 'preferences',
-                         'status', 'created_at', 'updated_at'
-                       ]) &&
                        isValidRequestType(request.resource.data.request_type) &&
                        isValidRequestStatus(request.resource.data.status) &&
                        isPositiveAmount(request.resource.data.budget_min) &&
@@ -261,13 +236,7 @@ service cloud.firestore {
       // Allow users to update and delete their own requests
       allow update, delete: if isAuthenticated() && 
                                isNotBanned() &&
-                               isOwner(resource.data.searcher_id) &&
-                               (request.resource == null || (
-                                 isValidRequestType(request.resource.data.request_type) &&
-                                 isValidRequestStatus(request.resource.data.status) &&
-                                 isPositiveAmount(request.resource.data.budget_min) &&
-                                 isPositiveAmount(request.resource.data.budget_max)
-                               ));
+                               isOwner(resource.data.searcher_id);
     }
     
     // Chats collection

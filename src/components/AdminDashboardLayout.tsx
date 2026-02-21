@@ -68,15 +68,26 @@ const AdminDashboardLayout = ({ children }: { children: ReactNode }) => {
         }`}
         style={{ background: "linear-gradient(180deg, hsl(263 70% 28%) 0%, hsl(263 70% 20%) 100%)" }}
       >
-        {/* Logo */}
-        <div className="p-5 flex items-center gap-2 border-b border-primary-foreground/10">
-          <div className="w-9 h-9 rounded-lg bg-primary-foreground/15 flex items-center justify-center">
-            <ShieldCheck className="w-5 h-5 text-primary-foreground" />
+        {/* Logo + Sign Out */}
+        <div className="p-4 border-b border-primary-foreground/10">
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-lg bg-primary-foreground/15 flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div>
+                <span className="font-display text-lg font-bold text-primary-foreground block leading-tight">RoomBridge</span>
+                <span className="text-[10px] text-secondary font-semibold uppercase tracking-wider">Admin Panel</span>
+              </div>
+            </div>
           </div>
-          <div>
-            <span className="font-display text-lg font-bold text-primary-foreground block leading-tight">RoomBridge</span>
-            <span className="text-[10px] text-secondary font-semibold uppercase tracking-wider">Admin Panel</span>
-          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-xl text-sm font-semibold bg-destructive/15 text-destructive hover:bg-destructive hover:text-white transition-all"
+          >
+            <LogOut className="w-4 h-4" />
+            Sign Out
+          </button>
         </div>
 
         {/* Navigation */}
@@ -109,13 +120,12 @@ const AdminDashboardLayout = ({ children }: { children: ReactNode }) => {
           })}
         </nav>
 
-        {/* Bottom admin card + logout */}
-        <div className="p-3 border-t border-primary-foreground/10 space-y-2">
-          {/* Admin mini profile */}
+        {/* Bottom admin profile card */}
+        <div className="p-3 border-t border-primary-foreground/10">
           <Link
             to="/admin/profile"
             onClick={() => setSidebarOpen(false)}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary-foreground/10 hover:bg-primary-foreground/15 transition-colors group"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary-foreground/10 hover:bg-primary-foreground/15 transition-colors"
           >
             <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-primary font-bold text-sm flex-shrink-0 overflow-hidden">
               {adminPhoto
@@ -129,15 +139,6 @@ const AdminDashboardLayout = ({ children }: { children: ReactNode }) => {
               <p className="text-[10px] text-secondary font-medium uppercase tracking-wide">Administrator</p>
             </div>
           </Link>
-
-          {/* Logout button */}
-          <button
-            onClick={handleLogout}
-            className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-xl text-sm font-semibold bg-destructive/15 text-destructive hover:bg-destructive hover:text-white transition-all"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
         </div>
       </aside>
 
